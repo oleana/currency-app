@@ -146,3 +146,49 @@ def test_convert_returns_502_for_upstream_http_errors(monkeypatch, failure: str)
     assert response.status_code == 502
     assert response.json() == {"detail": "Не удалось получить курс от внешнего API"}
     assert "conv:USD" not in main._cache
+
+
+@pytest.mark.parametrize("amount", ["nan", "inf", "-inf", "1e309", "-10"])
+def test_convert_rejects_invalid_amount_without_fetching(monkeypatch, amount: str) -> None:
+    fetch_calls = []
+
+    async def fake_fetch_json(_client, url: str):
+        fetch_calls.append(url)
+        return {"result": "success", "rates": {"RUB": 90.0}}
+
+    monkeypatch.setattr(main, "_fetch_json", fake_fetch_json)
+    response = TestClient(main.app, raise_server_exceptions=False).get(
+        "/api/convert", params={"amount": amount, "frm": "USD", "to": "RUB"}
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["loc"] == ["query", "amount"]
+    assert fetch_calls == []
+    assert "conv:USD" not in main._cache
+
+
+def test_convert_rejects_result_overflow(monkeypatch) -> None:
+    async def fake_fetch_json(_client, _url: str):
+        return {"result": "success", "rates": {"RUB": 90.0}}
+
+    monkeypatch.setattr(main, "_fetch_json", fake_fetch_json)
+    response = TestClient(main.app, raise_server_exceptions=False).get(
+        "/api/convert", params={"amount": "1e308", "frm": "USD", "to": "RUB"}
+    )
+
+    assert response.status_code == 422
+    assert response.json() == {"detail": "Сумма слишком велика для конвертации"}
+
+
+@pytest.mark.parametrize("amount, expected", [("0", 0.0), ("0.5", 45.0)])
+def test_convert_accepts_zero_and_fractional_amounts(monkeypatch, amount: str, expected: float) -> None:
+    async def fake_fetch_json(_client, _url: str):
+        return {"result": "success", "rates": {"RUB": 90.0}}
+
+    monkeypatch.setattr(main, "_fetch_json", fake_fetch_json)
+    response = client.get(
+        "/api/convert", params={"amount": amount, "frm": "USD", "to": "RUB"}
+    )
+
+    assert response.status_code == 200
+    assert response.json()["result"] == expected

@@ -10,12 +10,13 @@ Currency Rates API — курсы валют банков России, США �
 Запуск:  uvicorn main:app --reload --port 8000
 """
 
+import math
 import time
 import xml.etree.ElementTree as ET
-from typing import Any
+from typing import Annotated, Any
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -191,7 +192,9 @@ async def get_rates(country: str):
 
 
 @app.get("/api/convert")
-async def convert(amount: float, frm: str, to: str):
+async def convert(
+    amount: Annotated[float, Query(ge=0, allow_inf_nan=False)], frm: str, to: str
+):
     """Конвертация валют по актуальному курсу (через open.er-api.com)."""
     frm, to = frm.upper(), to.upper()
     cached = _cache_get(f"conv:{frm}")
@@ -209,12 +212,15 @@ async def convert(amount: float, frm: str, to: str):
     rate = cached["rates"].get(to)
     if rate is None:
         raise HTTPException(404, f"Валюта {to} не найдена")
+    result = amount * rate
+    if not math.isfinite(result):
+        raise HTTPException(422, "Сумма слишком велика для конвертации")
     return {
         "amount": amount,
         "from": frm,
         "to": to,
         "rate": rate,
-        "result": round(amount * rate, 4),
+        "result": round(result, 4),
         "date": cached.get("time_last_update_utc", ""),
     }
 
