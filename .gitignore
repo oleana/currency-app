@@ -1,0 +1,26 @@
+# Local environments and dependencies
+.venv/
+venv/
+node_modules/
+
+# Generated files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+*.egg-info/
+
+# Local editor and agent settings
+.idea/
+.cursor/
+opencode.json
+.DS_Store
+
+# Secrets and local environment settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key

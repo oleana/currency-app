@@ -1,0 +1,179 @@
+:root {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --card-2: #273449;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --accent: #38bdf8;
+  --up: #f87171;
+  --down: #4ade80;
+  --radius: 14px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.app {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: env(safe-area-inset-top) 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.header { padding: 20px 4px 14px; }
+.header h1 { font-size: 26px; letter-spacing: -0.5px; }
+.subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; }
+
+/* Вкладки стран */
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  position: sticky;
+  top: 8px;
+  z-index: 10;
+}
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.tab .flag { font-size: 22px; }
+.tab.active {
+  background: var(--card-2);
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.content { padding-top: 16px; }
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 4px 12px;
+}
+.bank { font-size: 14px; font-weight: 600; }
+.date { color: var(--muted); font-size: 12.5px; display: flex; align-items: center; gap: 8px; }
+.refresh {
+  border: none;
+  background: var(--card);
+  color: var(--accent);
+  border-radius: 8px;
+  width: 26px;
+  height: 26px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Карточки курсов */
+.rates { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.rate-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.rate-left { display: flex; align-items: center; gap: 12px; }
+.rate-flag { font-size: 26px; }
+.rate-code { font-weight: 700; font-size: 15px; }
+.rate-name { color: var(--muted); font-size: 12.5px; }
+.rate-right { text-align: right; }
+.rate-value { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rate-base { color: var(--muted); font-size: 12px; font-weight: 500; }
+.delta { font-size: 12px; font-variant-numeric: tabular-nums; }
+.delta.up { color: var(--up); }
+.delta.down { color: var(--down); }
+.delta.flat { color: var(--muted); }
+
+/* Конвертер */
+.converter {
+  margin-top: 20px;
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 16px 14px;
+}
+.converter h2 { font-size: 16px; margin-bottom: 12px; }
+.conv-row { display: flex; gap: 8px; }
+.conv-row input, .conv-row select {
+  background: var(--card-2);
+  border: 1px solid #334155;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 15px;
+  min-width: 0;
+}
+.conv-row input { flex: 1.4; }
+.conv-row select { flex: 1; appearance: none; text-align: center; }
+.swap {
+  background: var(--card-2);
+  border: 1px solid #334155;
+  color: var(--accent);
+  border-radius: 10px;
+  width: 40px;
+  flex-shrink: 0;
+  font-size: 16px;
+  cursor: pointer;
+}
+.btn {
+  background: var(--accent);
+  color: #0c1425;
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn:disabled { opacity: 0.6; }
+.btn.wide { width: 100%; margin-top: 10px; }
+.conv-result { margin-top: 12px; font-size: 15px; }
+.conv-result strong { color: var(--accent); }
+.conv-rate { color: var(--muted); font-size: 13px; }
+.conv-error { margin-top: 10px; color: var(--up); font-size: 14px; }
+
+/* Состояния */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: var(--muted);
+}
+.state.error { color: var(--up); }
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--card-2);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.source { margin-top: 16px; text-align: center; color: var(--muted); font-size: 12px; }
+.source a { color: var(--accent); text-decoration: none; }
+
+@media (min-width: 480px) {
+  .header h1 { font-size: 30px; }
+}
